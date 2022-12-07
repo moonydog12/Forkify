@@ -16,5 +16,9 @@
     "eslint-plugin-n": "^15.6.0",
     "eslint-plugin-promise": "^6.1.1",
     "parcel": "^2.8.0"
+  },
+  "dependencies": {
+    "core-js": "^3.26.1",
+    "regenerator-runtime": "^0.13.11"
   }
 }
