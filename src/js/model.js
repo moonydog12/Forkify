@@ -1,14 +1,16 @@
+import { API_URL } from './config.js'
+import { getJSON } from './helpers.js'
+
+// API網址
+// https://forkify-api.herokuapp.com/v2
+
 export const state = {
   recipe: {}
 }
 
 export const loadRecipe = async (recipeId) => {
   try {
-    const response = await fetch(`https://forkify-api.herokuapp.com/api/v2/recipes/${recipeId}`)
-    const data = await response.json()
-    if (!response.ok) {
-      throw new Error(`${data.message}(${response.status})`)
-    }
+    const data = await getJSON(`${API_URL}/${recipeId}`)
 
     // reformat the recipe object from api format
     const {
@@ -33,6 +35,6 @@ export const loadRecipe = async (recipeId) => {
       ingredients
     }
   } catch (error) {
-    window.alert(error)
+    throw new Error(error)
   }
 }
