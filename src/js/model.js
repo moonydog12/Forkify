@@ -73,3 +73,13 @@ export const getSearchResultsPage = (page = state.search.page) => {
   const end = page * state.search.resultsPerPage
   return state.search.results.slice(start, end)
 }
+
+// 更新用餐人數
+export const updateServings = (newServings = state.recipe.servings) => {
+  state.recipe.ingredients.forEach((ingredient) => {
+    // newQt = oldQt * newServings / oldServings
+    ingredient.quantity = (ingredient.quantity * newServings) / state.recipe.servings
+  })
+
+  state.recipe.servings = newServings
+}
