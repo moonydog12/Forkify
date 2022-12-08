@@ -2,13 +2,10 @@ import * as model from './model.js'
 import recipeView from './views/recipeView.js'
 import searchView from './views/searchView.js'
 import resultsView from './views/resultsView.js'
+import paginationView from './views/paginationView.js'
 
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
-
-if (module.hot) {
-  module.hot.accept()
-}
 
 const controlRecipes = async () => {
   try {
@@ -38,11 +35,22 @@ const controlSearchResults = async () => {
     // 2) 載入搜尋結果
     await model.loadSearchResults(query)
 
-    // 3) 渲染畫面
-    resultsView.render(model.state.search.results)
+    // 3) 渲染結果至畫面
+    resultsView.render(model.getSearchResultsPage())
+
+    // 4) 渲染頁數按鈕(初始化)
+    paginationView.render(model.state.search)
   } catch (error) {
     throw new Error(error)
   }
+}
+
+const controlPagination = (goToPage) => {
+  // 1) 渲染新搜尋結果
+  resultsView.render(model.getSearchResultsPage(goToPage))
+
+  // 2) 渲染頁數按鈕(根據當前頁數)
+  paginationView.render(model.state.search)
 }
 
 /* 發布/訂閱模式 (Publish–subscribe pattern)
@@ -52,6 +60,7 @@ const controlSearchResults = async () => {
 const init = () => {
   recipeView.addHandlerRender(controlRecipes)
   searchView.addHandlerSearch(controlSearchResults)
+  paginationView.addHandlerClick(controlPagination)
 }
 
 init()

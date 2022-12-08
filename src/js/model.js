@@ -1,5 +1,4 @@
-import { async } from 'regenerator-runtime'
-import { API_URL } from './config.js'
+import { API_URL, RES_PER_PAGE } from './config.js'
 import { getJSON } from './helpers.js'
 
 // API網址
@@ -9,7 +8,9 @@ export const state = {
   recipe: {},
   search: {
     query: '',
-    results: []
+    results: [],
+    page: 1,
+    resultsPerPage: RES_PER_PAGE
   }
 }
 
@@ -17,6 +18,7 @@ export const state = {
 export const loadRecipe = async (recipeId) => {
   try {
     const data = await getJSON(`${API_URL}${recipeId}`)
+
     // reformat the recipe object from api format
     const {
       id,
@@ -62,4 +64,12 @@ export const loadSearchResults = async (query) => {
   } catch (error) {
     throw new Error(error)
   }
+}
+
+// 計算單頁顯示品項數量
+export const getSearchResultsPage = (page = state.search.page) => {
+  state.search.page = page
+  const start = (page - 1) * state.search.resultsPerPage
+  const end = page * state.search.resultsPerPage
+  return state.search.results.slice(start, end)
 }
