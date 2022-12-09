@@ -11,7 +11,8 @@ export const state = {
     results: [],
     page: 1,
     resultsPerPage: RES_PER_PAGE
-  }
+  },
+  bookmarks: []
 }
 
 // 載入食譜
@@ -41,6 +42,12 @@ export const loadRecipe = async (recipeId) => {
       cookingTime,
       ingredients
     }
+
+    if (state.bookmarks.some((bookmark) => bookmark.id === recipeId)) {
+      state.recipe.bookmarked = true
+    } else {
+      state.recipe.bookmarked = false
+    }
   } catch (error) {
     throw new Error(error)
   }
@@ -61,6 +68,7 @@ export const loadSearchResults = async (query) => {
         image: recipe.image_url
       }
     })
+    state.search.page = 1
   } catch (error) {
     throw new Error(error)
   }
@@ -83,3 +91,43 @@ export const updateServings = (newServings = state.recipe.servings) => {
 
   state.recipe.servings = newServings
 }
+
+const persistBookmarks = () => {
+  localStorage.setItem('bookmarks', JSON.stringify(state.bookmarks))
+}
+
+// 添加書籤
+export const addBookmark = (recipe) => {
+  // 新增書籤
+  state.bookmarks.push(recipe)
+
+  // 標註目前的食譜成書籤
+  if (recipe.id === state.recipe.id) {
+    state.recipe.bookmarked = true
+  }
+
+  persistBookmarks()
+}
+
+export const deleteBookmark = (id) => {
+  // 刪除書籤
+  const index = state.bookmarks.findIndex((element) => element.id === id)
+  state.bookmarks.splice(index, 1)
+
+  // 標註目前的食譜 "不是" 書籤
+  if (id === state.recipe.id) {
+    state.recipe.bookmarked = false
+  }
+
+  persistBookmarks()
+}
+
+// 載入local-storage書籤資料
+const init = () => {
+  const storage = localStorage.getItem('bookmarks')
+  if (storage) {
+    state.bookmarks = JSON.parse(storage)
+  }
+}
+
+init()
