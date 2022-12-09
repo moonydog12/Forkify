@@ -1,9 +1,11 @@
 import * as model from './model.js'
+import { MODAL_CLOSE_SEC } from './config'
 import recipeView from './views/recipeView.js'
 import searchView from './views/searchView.js'
 import resultsView from './views/resultsView.js'
 import paginationView from './views/paginationView.js'
 import bookmarksViews from './views/bookmarksView.js'
+import addRecipeView from './views/addRecipeView.js'
 
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
@@ -93,6 +95,35 @@ const controlBookmarks = () => {
   bookmarksViews.render(model.state.bookmarks)
 }
 
+const controlAddRecipe = async (newRecipe) => {
+  try {
+    addRecipeView.renderSpinner()
+
+    // Upload the new recipe data
+    await model.uploadRecipe(newRecipe)
+
+    // Render recipe
+    recipeView.render(model.state.recipe)
+
+    // Success message
+    addRecipeView.renderMessage()
+
+    // Render bookmark view
+    bookmarksViews.render(model.state.bookmarks)
+
+    // Change ID in URL
+    window.history.pushState(null, '', `#${model.state.recipe.id}`)
+
+    // Close form window
+    setTimeout(() => {
+      addRecipeView.toggleWindow()
+    }, MODAL_CLOSE_SEC * 1000)
+  } catch (error) {
+    console.error(error + '🪰')
+    addRecipeView.renderError(error.message)
+  }
+}
+
 /* 發布/訂閱模式 (Publish–subscribe pattern)
  * 在程式載入的時候執行，把 controlRecipes() 作為引數，傳給負責 View 的 RecipeView class
  * 把畫面載入、DOM操作的功能從 Controller 分離
@@ -104,6 +135,7 @@ const init = () => {
   recipeView.addHandlerAddBookmark(controlAddBookmark)
   searchView.addHandlerSearch(controlSearchResults)
   paginationView.addHandlerClick(controlPagination)
+  addRecipeView.addHandlerUpload(controlAddRecipe)
 }
 
 init()
