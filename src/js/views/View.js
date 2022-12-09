@@ -12,6 +12,31 @@ export default class View {
     this._parentElement.insertAdjacentHTML('afterbegin', markup)
   }
 
+  // 只更新更動的子元素(不重新渲染 parent 元素)
+  update(data) {
+    this._data = data
+    const newMarkup = this._generateMarkup()
+
+    // note: 字串轉成 DOM 物件
+    const newDOM = document.createRange().createContextualFragment(newMarkup)
+    const newElements = [...newDOM.querySelectorAll('*')]
+    const currentElements = [...this._parentElement.querySelectorAll('*')]
+
+    newElements.forEach((newEl, index) => {
+      const curEl = currentElements[index]
+
+      // 更新文字更動的元素
+      if (!newEl.isEqualNode(curEl) && newEl.firstChild?.nodeValue.trim() !== '') {
+        curEl.textContent = newEl.textContent
+      }
+
+      // 更新屬性更動的元素
+      if (!newEl.isEqualNode(curEl)) {
+        ;[...newEl.attributes].forEach((attr) => curEl.setAttribute(attr.name, attr.value))
+      }
+    })
+  }
+
   _clear() {
     this._parentElement.innerHTML = ''
   }

@@ -14,6 +14,9 @@ const controlRecipes = async () => {
     if (!id) return
     recipeView.renderSpinner()
 
+    // 0) 更新 results view(標註被選擇的搜尋結果)
+    resultsView.update(model.getSearchResultsPage())
+
     // 1)讀取API食譜資料
     await model.loadRecipe(id)
 
@@ -61,8 +64,8 @@ const controlServings = (newServings) => {
   // 更新 recipe serving(in state)
   model.updateServings(newServings)
 
-  // 更新 recipe view
-  recipeView.render(model.state.recipe)
+  // 更新 recipe view (只更新有變動的部分，不更新全部畫面)
+  recipeView.update(model.state.recipe)
 }
 
 /* 發布/訂閱模式 (Publish–subscribe pattern)
